@@ -4,12 +4,15 @@ from pydantic import BaseModel
 from app.services.llm_service import LLMService
 from app.services.scraping_service import ScrapingService
 from app.services.nlp_service import NLPCleaningService
+from app.services.vector_store_service import VectorStoreService
+
 
 app = FastAPI()
 
 llm_service = LLMService()
 scraping_service = ScrapingService()
 nlp_service = NLPCleaningService()
+vector_store_service = VectorStoreService()
 
 
 class ChatRequest(BaseModel):
@@ -18,6 +21,9 @@ class ChatRequest(BaseModel):
 
 class ScrapeRequest(BaseModel):
     url: str
+
+class RAGQueryRequest(BaseModel):
+    question: str
 
 
 @app.get("/health", tags=["System"])
@@ -50,4 +56,25 @@ def scrape_and_clean(request: ScrapeRequest):
         "raw_length": len(raw_text),
         "clean_length": len(clean_text),
         "preview": clean_text[:500]
+    }
+
+@app.post("/rag-query", tags=["RAG"])
+def rag_query(request: RAGQueryRequest):
+    context = vector_store_service.retrieve_context(request.question)
+
+    prompt = f"""
+Use the following context to answer the question.
+
+Context:
+{context}
+
+Question:
+{request.question}
+"""
+
+    answer = llm_service.generate_response(prompt)
+
+    return {
+        "question": request.question,
+        "answer": answer
     }
