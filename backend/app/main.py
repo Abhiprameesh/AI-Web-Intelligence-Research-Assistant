@@ -6,6 +6,10 @@ from app.services.scraping_service import ScrapingService
 from app.services.nlp_service import NLPCleaningService
 from app.services.vector_store_service import VectorStoreService
 
+import uuid
+
+INGESTION_JOBS = {}
+
 
 app = FastAPI()
 
@@ -13,6 +17,9 @@ llm_service = LLMService()
 scraping_service = ScrapingService()
 nlp_service = NLPCleaningService()
 vector_store_service = VectorStoreService()
+
+class BatchIngestRequest(BaseModel):
+    urls: list[str]
 
 
 class ChatRequest(BaseModel):
@@ -86,3 +93,49 @@ Answer:
         "sources": sources
     }
 
+@app.post("/ingest", tags=["Ingestion"])
+def ingest_urls(request: BatchIngestRequest):
+    job_id = str(uuid.uuid4())
+
+    INGESTION_JOBS[job_id] = {
+        "status": "in_progress",
+        "results": []
+    }
+
+    for url in request.urls:
+        try:
+            raw_text = scraping_service.scrape_text(url)
+            clean_text = nlp_service.clean_text(raw_text)
+
+            vector_store_service.add_text(
+                text=clean_text,
+                metadata={"source": url}
+            )
+
+            INGESTION_JOBS[job_id]["results"].append({
+                "url": url,
+                "status": "ingested"
+            })
+
+        except Exception as e:
+            INGESTION_JOBS[job_id]["results"].append({
+                "url": url,
+                "status": "failed",
+                "error": str(e)
+            })
+
+    INGESTION_JOBS[job_id]["status"] = "completed"
+
+    return {
+        "job_id": job_id,
+        "message": "Ingestion started"
+    }
+
+@app.get("/ingest/{job_id}", tags=["Ingestion"])
+def get_ingest_status(job_id: str):
+    job = INGESTION_JOBS.get(job_id)
+
+    if not job:
+        return {"error": "Job not found"}
+
+    return job
