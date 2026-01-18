@@ -35,9 +35,17 @@ class VectorStoreService:
     def search(self, query: str, k: int = 3):
         return self.vector_store.similarity_search(query, k=k)
     
-    def retrieve_context(self, query: str, k: int = 3) -> str:
+    def retrieve_context(self, query: str, k: int = 2):
         docs = self.vector_store.similarity_search(query, k=k)
 
-        context = "\n\n".join(doc.page_content for doc in docs)
-        return context
+        context_text = ""
+        sources = set()
+
+        for doc in docs:
+            context_text += doc.page_content + "\n\n"
+            if "source" in doc.metadata:
+                sources.add(doc.metadata["source"])
+
+        return context_text.strip(), list(sources)
+
 

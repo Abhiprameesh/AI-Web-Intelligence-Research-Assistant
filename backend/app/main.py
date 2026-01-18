@@ -60,21 +60,29 @@ def scrape_and_clean(request: ScrapeRequest):
 
 @app.post("/rag-query", tags=["RAG"])
 def rag_query(request: RAGQueryRequest):
-    context = vector_store_service.retrieve_context(request.question)
+    context, sources = vector_store_service.retrieve_context(request.question)
 
     prompt = f"""
-Use the following context to answer the question.
+You are a research assistant.
+
+Answer the question ONLY using the context provided below.
+If the answer is not present in the context, say:
+"I don't have enough information from the given sources."
 
 Context:
 {context}
 
 Question:
 {request.question}
+
+Answer:
 """
 
     answer = llm_service.generate_response(prompt)
 
     return {
         "question": request.question,
-        "answer": answer
+        "answer": answer,
+        "sources": sources
     }
+
