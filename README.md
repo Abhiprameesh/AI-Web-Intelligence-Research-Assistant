@@ -32,13 +32,13 @@ graph TD
     D -->|Uses| F[Embedding Models]
     C -->|Fetches Data| G[Web Sources]
     
-    style A fill:#f9f,stroke:#333
-    style B fill:#bbf,stroke:#333
-    style C fill:#f96,stroke:#333
-    style D fill:#9cf,stroke:#333
-    style E fill:#9f9,stroke:#333
-    style F fill:#ff9,stroke:#333
-    style G fill:#f99,stroke:#333
+    style A fill:#c0392b,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style B fill:#2980b9,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style C fill:#27ae60,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style D fill:#8e44ad,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style E fill:#16a085,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style F fill:#f39c12,stroke:#333,color:white,stroke-width:2px,font-weight:bold
+    style G fill:#d35400,stroke:#333,color:white,stroke-width:2px,font-weight:bold
 ```
 
 The system follows a modern microservices architecture with the following components:
