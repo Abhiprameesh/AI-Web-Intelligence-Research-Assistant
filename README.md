@@ -1,4 +1,4 @@
-# AI Web Intelligence & Research Assistant
+# KnowBaseRAG – AI-Powered Web Intelligence & Research Assistant
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
